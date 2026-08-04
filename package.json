@@ -1,0 +1,26 @@
+{
+  "name": "@enovel/starter-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript starter for Novel-Electron extensions",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "init": "node init.js",
+    "validate": "node validate-starter.js",
+    "typecheck": "npm run validate && tsc --noEmit",
+    "build": "npm run typecheck && node build.js",
+    "test:init": "node test/init-run-tests.js",
+    "test": "npm run build && node test/run-tests.js && npm run test:init",
+    "package": "npm run build && node package.js",
+    "test:package": "npm run package && node test/verify-package.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.1",
+    "adm-zip": "^0.6.0",
+    "esbuild": "^0.25.0",
+    "linkedom": "^0.18.13",
+    "typescript": "^5.9.3"
+  }
+}
