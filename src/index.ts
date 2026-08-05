@@ -1,13 +1,17 @@
+import { initExtensionApi, logger } from './utilities'
 import { activateScraper } from './scraper'
 import { activateTheme } from './theme'
 import { activateTTS } from './tts'
 import { registerTranslatorProfile } from './translator'
 
 export { extractArticleParagraphs } from './scraper/html'
+export * from './utilities'
 
 declare const __NOVEL_EXTENSION_KIND__: 'scraper' | 'theme' | 'tts' | 'translator'
 
 export async function activate(novel: NovelExtensionApi): Promise<void> {
+  initExtensionApi(novel)
+
   if (__NOVEL_EXTENSION_KIND__ === 'scraper') {
     await activateScraper(novel)
   } else if (__NOVEL_EXTENSION_KIND__ === 'tts') {
@@ -17,7 +21,7 @@ export async function activate(novel: NovelExtensionApi): Promise<void> {
   } else {
     await activateTheme(novel)
   }
-  await novel.logger.info(`Activated ${novel.extension.id}`)
+  await logger.info(`Activated ${novel.extension.id}`)
 }
 
 export async function deactivate(): Promise<void> {

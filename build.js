@@ -1,13 +1,14 @@
 const path = require('node:path')
 const fs = require('node:fs')
-const { build } = require('esbuild')
+const { build, context } = require('esbuild')
 
 const root = __dirname
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'extension.json'), 'utf8'))
 const extensionKind = manifest.starter?.kind
+const isWatch = process.argv.includes('--watch') || process.argv.includes('-w')
 
 async function bundle(outfile, platform) {
-  await build({
+  const options = {
     entryPoints: [path.join(root, 'src/index.ts')],
     outfile: path.join(root, outfile),
     bundle: true,
@@ -20,7 +21,15 @@ async function bundle(outfile, platform) {
     define: {
       __NOVEL_EXTENSION_KIND__: JSON.stringify(extensionKind)
     }
-  })
+  }
+
+  if (isWatch) {
+    const ctx = await context(options)
+    await ctx.watch()
+    console.log(`[esbuild watch] Watching ${outfile} for changes...`)
+  } else {
+    await build(options)
+  }
 }
 
 Promise.all([

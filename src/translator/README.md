@@ -1,4 +1,4 @@
-# Novel-Electron Translator Extension Guide
+# e-novels Translator Extension Guide
 
 A Translator extension enables automatic AI/machine translation of chapter paragraphs when the user enables translation mode in the application.
 
@@ -40,7 +40,7 @@ A standard Translator extension must declare the `translate` permission and cont
 
 ### Key Rules:
 1. **Permissions**: Request permission `"translate"`. If making external network requests, request `"network"` and list endpoints in `"network.allowedHosts"`.
-2. **Single Active Constraint**: Novel-Electron allows **only one active translator extension at a time**. Activating a new translator extension automatically deactivates any previously active translator extension.
+2. **Single Active Constraint**: e-novels allows **only one active translator extension at a time**. Activating a new translator extension automatically deactivates any previously active translator extension.
 
 ## 2. Entry Point Implementation (`src/index.ts`)
 

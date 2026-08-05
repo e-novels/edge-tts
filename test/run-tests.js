@@ -12,10 +12,19 @@ const runners = {
   translator: './translator/run-tests',
   tts: './tts/run-tests'
 }
-const runner = runners[manifest.starter?.kind]
+const runUtilitiesTests = require('./utilities.test')
 
+const runner = runners[manifest.starter?.kind]
 if (!runner) {
   throw new Error('extension.json starter.kind must be "scraper", "theme", "translator", or "tts".')
 }
 
-require(runner)(root, manifest)
+async function main() {
+  await runUtilitiesTests(root)
+  await require(runner)(root, manifest)
+}
+
+main().catch(error => {
+  console.error(error)
+  process.exitCode = 1
+})

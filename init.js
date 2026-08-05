@@ -113,10 +113,10 @@ function validateOptions(options) {
       : kind === 'scraper'
         ? `Search and read books from ${displayName}.`
         : kind === 'tts'
-          ? `TTS Engine extension for Novel-Electron by ${publisher}.`
+          ? `TTS Engine extension for e-novels by ${publisher}.`
           : kind === 'translator'
-            ? `Translator extension for Novel-Electron by ${publisher}.`
-            : `A programmatic theme for Novel-Electron by ${publisher}.`,
+            ? `Translator extension for e-novels by ${publisher}.`
+            : `A programmatic theme for e-novels by ${publisher}.`,
     force: options.force === true
   }
 }
@@ -143,7 +143,7 @@ function initialize(root, rawOptions) {
           ? 'Translator'
           : 'Themes'
   ]
-  manifest.keywords = ['novel-electron', options.kind, 'typescript']
+  manifest.keywords = ['e-novels', options.kind, 'typescript']
 
   if (options.kind === 'scraper') {
     const sourceUrl = new URL(options.baseUrl)
@@ -200,9 +200,109 @@ function initialize(root, rawOptions) {
     manifest.contributes = {}
   }
 
+  cleanUnusedKinds(root, options.kind)
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
   return manifest
 }
+
+const ALL_KINDS = ['scraper', 'theme', 'tts', 'translator']
+
+function cleanUnusedKinds(root, activeKind) {
+  for (const kind of ALL_KINDS) {
+    if (kind === activeKind) continue
+
+    const srcDir = path.join(root, 'src', kind)
+    if (fs.existsSync(srcDir)) {
+      fs.rmSync(srcDir, { recursive: true, force: true })
+    }
+
+    const typeFile = path.join(root, 'src', 'types', `${kind}.d.ts`)
+    if (fs.existsSync(typeFile)) {
+      fs.rmSync(typeFile, { force: true })
+    }
+
+    const testDir = path.join(root, 'test', kind)
+    if (fs.existsSync(testDir)) {
+      fs.rmSync(testDir, { recursive: true, force: true })
+    }
+  }
+
+  updateIndexTs(root, activeKind)
+}
+
+function updateIndexTs(root, kind) {
+  const indexPath = path.join(root, 'src', 'index.ts')
+  let content = ''
+  if (kind === 'scraper') {
+    content = `import { initExtensionApi, logger } from './utilities'
+import { activateScraper } from './scraper'
+
+export { extractArticleParagraphs } from './scraper/html'
+export * from './utilities'
+
+export async function activate(novel: NovelExtensionApi): Promise<void> {
+  initExtensionApi(novel)
+  await activateScraper(novel)
+  await logger.info(\`Activated \${novel.extension.id}\`)
+}
+
+export async function deactivate(): Promise<void> {
+  return
+}
+`
+  } else if (kind === 'theme') {
+    content = `import { initExtensionApi, logger } from './utilities'
+import { activateTheme } from './theme'
+
+export * from './utilities'
+
+export async function activate(novel: NovelExtensionApi): Promise<void> {
+  initExtensionApi(novel)
+  await activateTheme(novel)
+  await logger.info(\`Activated \${novel.extension.id}\`)
+}
+
+export async function deactivate(): Promise<void> {
+  return
+}
+`
+  } else if (kind === 'translator') {
+    content = `import { initExtensionApi, logger } from './utilities'
+import { registerTranslatorProfile } from './translator'
+
+export * from './utilities'
+
+export async function activate(novel: NovelExtensionApi): Promise<void> {
+  initExtensionApi(novel)
+  registerTranslatorProfile(novel)
+  await logger.info(\`Activated \${novel.extension.id}\`)
+}
+
+export async function deactivate(): Promise<void> {
+  return
+}
+`
+  } else if (kind === 'tts') {
+    content = `import { initExtensionApi, logger } from './utilities'
+import { activateTTS } from './tts'
+
+export * from './utilities'
+
+export async function activate(novel: NovelExtensionApi): Promise<void> {
+  initExtensionApi(novel)
+  await activateTTS(novel)
+  await logger.info(\`Activated \${novel.extension.id}\`)
+}
+
+export async function deactivate(): Promise<void> {
+  return
+}
+`
+  }
+
+  fs.writeFileSync(indexPath, content, 'utf8')
+}
+
 
 function main() {
   const options = parseOptions(process.argv.slice(2))

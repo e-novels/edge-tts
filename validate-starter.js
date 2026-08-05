@@ -51,7 +51,7 @@ function validateManifestBasics() {
     fail('version must be a valid semver value such as "1.0.0".')
   }
   if (!manifest.engines || typeof manifest.engines !== 'object' || typeof manifest.engines.enovel !== 'string') {
-    fail('engines.enovel must declare a compatible Novel-Electron version.')
+    fail('engines.enovel must declare a compatible e-novels version.')
   }
   requireRelativePath(manifest.main, 'main')
   requireRelativePath(manifest.browser, 'browser')

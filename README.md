@@ -1,6 +1,6 @@
 # E-Novel Extension Starter  
   
-This folder is a self-contained TypeScript starter for one Novel-Electron extension profile. It packages, type-checks, and runs fixture-backed tests without access to the host application source code. A built extension only communicates with the application through the `novel` object (`NovelExtensionApi`) passed to `activate`.  
+This folder is a self-contained TypeScript starter for one e-novels extension profile. It packages, type-checks, and runs fixture-backed tests without access to the host application source code. A built extension only communicates with the application through the `novel` object (`NovelExtensionApi`) passed to `activate`.  
   
 The starter supports four profiles, and every build/test/package cycle targets exactly one of them:  
   
@@ -16,7 +16,7 @@ The default profile is a scraper. It does not scrape a live website: it uses `ex
 ## Prerequisites  
   
 - Node.js `20.19.0` or later  
-- A Novel-Electron installation compatible with the `enovel` version in `extension.json`  
+- A e-novels installation compatible with the `enovel` version in `extension.json`  
   
 ## Quick Start  
   
@@ -41,7 +41,7 @@ npm test
 npm run test:package  
 ```  
   
-`npm test` type-checks the extension, validates the selected profile, builds desktop and browser bundles, then invokes the matching profile through a mocked Novel-Electron bridge. `npm run test:package` creates and verifies the ZIP named from `extension.json`.  
+`npm test` type-checks the extension, validates the selected profile, builds desktop and browser bundles, then invokes the matching profile through a mocked e-novels bridge. `npm run test:package` creates and verifies the ZIP named from `extension.json`.  
   
 `npm run init` replaces the template manifest and, for a scraper, changes `BASE_URL` in `src/scraper/index.ts`. It does not infer a source API or HTML structure; update routes, mappers, and fixtures after initialization. The command refuses to replace a configured extension unless `--force` is provided.  
   
@@ -67,6 +67,7 @@ src/
   theme/            # Programmatic theme variables  
   translator/       # Translator handler and batch paragraph processor  
   tts/              # TTS bridges for process/cloud/wasm modes (+ python/ example)  
+  utilities/        # Shared SDK utilities (context, logger, network, storage, etc.)  
   types/            # Public bridge and response types (global ambient declarations)  
 test/  
   scraper/          # Mocked scraper bridge tests  
@@ -74,6 +75,37 @@ test/
   translator/       # Mocked translator bridge tests  
   tts/              # Mocked TTS bridge tests  
 ```  
+  
+## Extension Utilities SDK (`src/utilities`)
+
+When `activate(novel)` runs in `src/index.ts`, `initExtensionApi(novel)` is invoked automatically. All helper files and sub-modules within your extension can then directly import and use the SDK services:
+
+```ts
+import { logger, network, storage, env } from '../utilities'
+
+export async function fetchChapterData(chapterRef: string) {
+  await logger.info(`Fetching chapter ${chapterRef}`)
+
+  // Centralized permission check: network.fetchJson automatically asserts network permission
+  const data = await network.fetchJson<TemplateChapter>(`https://api.example.com/chapters/${chapterRef}`)
+  return data
+}
+```
+
+### Available Utilities Overview
+
+| Utility | Imported Symbol | Main Methods & Features |
+| --- | --- | --- |
+| Context | `initExtensionApi`, `getNovelApi`, `isNovelApiInitialized` | Sets and retrieves the global `NovelExtensionApi` instance for the extension. |
+| Logger | `logger` | `logger.info(...)`, `logger.warn(...)`, `logger.error(...)` |
+| Network | `network`, `getNetwork` | `network.fetchJson<T>(...)`, `fetchText(...)`, `fetchDataUrl(...)`. Asserts `network` permission. |
+| Storage | `storage`, `getStorage` | `storage.get<T>(...)`, `set(...)`, `remove(...)`, `createAssetUrl(...)`. Asserts `storage` permission. |
+| Settings | `settings`, `getSettings` | `settings.register(handlers)` |
+| Progress | `progress`, `getProgress` | `progress.report({ message, percentage })` |
+| Process | `processApi`, `getProcess` | `processApi.spawn(...)`, `kill(...)`, `writeLine(...)`, `onLine(...)` (Desktop Electron). |
+| UI / Theme | `ui` | `ui.applyTheme(variables)` |
+| Environment | `env` | `env.version`, `env.platform`, `env.extensionId`, `env.manifest` |
+
   
 Keep only the profile directory you are actively changing. The others remain as reference implementations, but they are not activated, tested, or declared in the package.  
   
@@ -261,24 +293,24 @@ Before publishing a ZIP, confirm all of the following:
 2. Every requested hostname, including image CDN and API redirect hosts, is listed in `network.allowedHosts`.  
 3. You have permission to access the source and have checked its terms, rate limits, and authentication requirements.  
 4. Fixtures cover representative successful data plus malformed data, a missing chapter selector, and expected request failures such as HTTP 403 or 429.  
-5. `npm test` and `npm run test:package` pass, then the ZIP has been installed and exercised in a compatible Novel-Electron build.  
+5. `npm test` and `npm run test:package` pass, then the ZIP has been installed and exercised in a compatible e-novels build.  
 6. For TTS, also confirm: the correct `mode`, that `process` mode ships its binary/script, and that `cloud` mode lists every API host in `network.allowedHosts`.  
   
 ## Runtime Source Validation  
   
-The default scraper validates JSON received from `novel.network` before mapping it into Novel-Electron response objects. Invalid IDs, dates, images, pagination, chapter metadata, or empty paragraphs produce an actionable error such as `Invalid source response at chapter.paragraphs[0]`.  
+The default scraper validates JSON received from `novel.network` before mapping it into e-novels response objects. Invalid IDs, dates, images, pagination, chapter metadata, or empty paragraphs produce an actionable error such as `Invalid source response at chapter.paragraphs[0]`.  
   
 When replacing the `Template*` types with source-specific types, update [src/scraper/validation.ts](src/scraper/validation.ts) with the invariants that matter for that source. TypeScript only checks code at build time; network responses must be checked at runtime.  
   
 ## Manifest Reference  
   
-`extension.json` is the installed extension manifest. `starter.kind` is only a starter build and test selector; Novel-Electron ignores it after installation.  
+`extension.json` is the installed extension manifest. `starter.kind` is only a starter build and test selector; e-novels ignores it after installation.  
   
 | Field | Requirement |  
 | --- | --- |  
 | `name` | Lowercase letters, digits, and hyphens. It identifies the installed extension and its host channels. |  
 | `version` | SemVer, such as `1.2.0`. |  
-| `engines.enovel` | Compatible Novel-Electron version range. |  
+| `engines.enovel` | Compatible e-novels version range. |  
 | `main`, `browser`, `icon` | Safe relative paths included in the package. The starter builds the first two. |  
 | `activationEvents` | Use `always` for a scraper, TTS, translator or programmatic theme that must be available on application start. |  
 | `permissions` | Request only capabilities the selected profile needs. |  
@@ -294,7 +326,7 @@ Every declared scraper/TTS/translator capability must be registered exactly once
 ## Install, Update, And Diagnose  
   
 1. Run `npm run test:package`. The ZIP is written in this folder as `<name>-<version>.zip`.  
-2. In Novel-Electron, open **Extensions** and choose **Install extension from ZIP**.  
+2. In e-novels, open **Extensions** and choose **Install extension from ZIP**.  
 3. Select the ZIP and open its detail page. Its bundled `README.md` appears on the **Guide** tab.  
 4. Activate the extension from its detail page when it is not activated automatically.  
 5. To update it, increment `version`, package again, deactivate the existing extension, install the new ZIP with the same `name`, then activate it.  

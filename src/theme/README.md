@@ -1,6 +1,6 @@
 # Theme Token Reference
 
-Edit `index.ts` and add only the tokens your theme needs. Every key is passed to Novel-Electron without the CSS `--` prefix. Values must be valid CSS strings, usually hex colors or `rgba(...)` values.
+Edit `index.ts` and add only the tokens your theme needs. Every key is passed to e-novels without the CSS `--` prefix. Values must be valid CSS strings, usually hex colors or `rgba(...)` values.
 
 Start with background, text, border, and brand colors. Install the extension and inspect the app after each small group of changes. This keeps contrast problems easy to trace.
 

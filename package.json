@@ -2,7 +2,7 @@
   "name": "@enovel/starter-extension",
   "version": "0.1.0",
   "private": true,
-  "description": "TypeScript starter for Novel-Electron extensions",
+  "description": "TypeScript starter for e-novels extensions",
   "engines": {
     "node": ">=20.19.0"
   },
@@ -11,6 +11,8 @@
     "validate": "node validate-starter.js",
     "typecheck": "npm run validate && tsc --noEmit",
     "build": "npm run typecheck && node build.js",
+    "dev": "node build.js --watch",
+    "watch": "node build.js --watch",
     "test:init": "node test/init-run-tests.js",
     "test": "npm run build && node test/run-tests.js && npm run test:init",
     "package": "npm run build && node package.js",

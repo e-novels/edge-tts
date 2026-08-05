@@ -2,11 +2,7 @@ const BASE_URL = 'https://example.com'
 
 export { extractArticleParagraphs } from './html'
 import { assertTemplateBookDetail, assertTemplateChapter, assertTemplateSearchResponse } from './validation'
-
-function requireNetwork(novel: NovelExtensionApi): ExtensionNetworkApi {
-  if (!novel.network) throw new Error('This scraper requires the network permission.')
-  return novel.network
-}
+import { network } from '../utilities'
 
 function endpoint(pathname: string): string {
   return new URL(pathname, BASE_URL).toString()
@@ -69,8 +65,6 @@ function toChapter(chapter: TemplateChapter): ScraperChapter {
 }
 
 export async function activateScraper(novel: NovelExtensionApi): Promise<void> {
-  const network = requireNetwork(novel)
-
   await novel.scraper.register({
     async search({ filters, page, pageSize }) {
       const url = new URL(endpoint('/api/books'))

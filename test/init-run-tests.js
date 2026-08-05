@@ -11,8 +11,21 @@ const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'enovel-extension-init-')
 
 function createTemplate(target) {
   fs.mkdirSync(path.join(target, 'src', 'scraper'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'src', 'theme'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'src', 'translator'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'src', 'tts'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'src', 'types'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'test', 'theme'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'test', 'translator'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'test', 'tts'), { recursive: true })
+  fs.mkdirSync(path.join(target, 'test', 'scraper'), { recursive: true })
+
   fs.copyFileSync(path.join(root, 'extension.json'), path.join(target, 'extension.json'))
   fs.copyFileSync(path.join(root, 'src', 'scraper', 'index.ts'), path.join(target, 'src', 'scraper', 'index.ts'))
+  fs.writeFileSync(path.join(target, 'src', 'types', 'scraper.d.ts'), '')
+  fs.writeFileSync(path.join(target, 'src', 'types', 'theme.d.ts'), '')
+  fs.writeFileSync(path.join(target, 'src', 'types', 'translator.d.ts'), '')
+  fs.writeFileSync(path.join(target, 'src', 'types', 'tts.d.ts'), '')
 }
 
 try {
@@ -29,6 +42,15 @@ try {
   assert.deepEqual(scraper.network.allowedHosts, ['books.example.org'])
   assert.equal(scraper.contributes.scraper.site.baseUrl, 'https://books.example.org')
   assert.match(fs.readFileSync(path.join(scraperRoot, 'src', 'scraper', 'index.ts'), 'utf8'), /https:\/\/books\.example\.org/)
+  assert.equal(fs.existsSync(path.join(scraperRoot, 'src', 'theme')), false)
+  assert.equal(fs.existsSync(path.join(scraperRoot, 'src', 'translator')), false)
+  assert.equal(fs.existsSync(path.join(scraperRoot, 'src', 'tts')), false)
+  assert.equal(fs.existsSync(path.join(scraperRoot, 'src', 'types', 'theme.d.ts')), false)
+  assert.equal(fs.existsSync(path.join(scraperRoot, 'src', 'types', 'translator.d.ts')), false)
+  assert.equal(fs.existsSync(path.join(scraperRoot, 'src', 'types', 'tts.d.ts')), false)
+  assert.equal(fs.existsSync(path.join(scraperRoot, 'test', 'theme')), false)
+  assert.match(fs.readFileSync(path.join(scraperRoot, 'src', 'index.ts'), 'utf8'), /activateScraper/)
+
   assert.throws(() => initialize(scraperRoot, parseOptions([
     '--name', 'other-source', '--display-name', 'Other Source', '--publisher', 'independent-dev', '--kind', 'theme'
   ])), /Refusing to replace/)
@@ -52,6 +74,11 @@ try {
   assert.deepEqual(theme.permissions, ['ui.theme'])
   assert.deepEqual(theme.contributes, {})
   assert.equal(theme.network, undefined)
+  assert.equal(fs.existsSync(path.join(themeRoot, 'src', 'scraper')), false)
+  assert.equal(fs.existsSync(path.join(themeRoot, 'src', 'types', 'scraper.d.ts')), false)
+  assert.equal(fs.existsSync(path.join(themeRoot, 'test', 'scraper')), false)
+  assert.match(fs.readFileSync(path.join(themeRoot, 'src', 'index.ts'), 'utf8'), /activateTheme/)
+
 
   const translatorRoot = path.join(tempRoot, 'translator')
   createTemplate(translatorRoot)
@@ -64,6 +91,9 @@ try {
   assert.deepEqual(translator.permissions, ['translate', 'network', 'storage'])
   assert.equal(translator.contributes.translator.name, 'AI Translator')
   assert.deepEqual(translator.contributes.translator.targetLanguages, ['en', 'vi'])
+  assert.equal(fs.existsSync(path.join(translatorRoot, 'src', 'scraper')), false)
+  assert.equal(fs.existsSync(path.join(translatorRoot, 'src', 'types', 'scraper.d.ts')), false)
+  assert.match(fs.readFileSync(path.join(translatorRoot, 'src', 'index.ts'), 'utf8'), /registerTranslatorProfile/)
 
   const ttsProcessRoot = path.join(tempRoot, 'tts-process')
   createTemplate(ttsProcessRoot)
@@ -77,6 +107,9 @@ try {
   assert.deepEqual(ttsProcess.permissions, ['tts', 'storage'])
   assert.equal(ttsProcess.contributes.tts.mode, 'process')
   assert.deepEqual(ttsProcess.contributes.tts.capabilities, ['getVoices', 'speak', 'stop'])
+  assert.equal(fs.existsSync(path.join(ttsProcessRoot, 'src', 'theme')), false)
+  assert.equal(fs.existsSync(path.join(ttsProcessRoot, 'src', 'types', 'theme.d.ts')), false)
+  assert.match(fs.readFileSync(path.join(ttsProcessRoot, 'src', 'index.ts'), 'utf8'), /activateTTS/)
 
   const ttsCloudRoot = path.join(tempRoot, 'tts-cloud')
   createTemplate(ttsCloudRoot)

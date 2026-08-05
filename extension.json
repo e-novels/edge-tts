@@ -3,7 +3,7 @@
   "displayName": "Example Extension",
   "publisher": "your-publisher",
   "version": "0.1.0",
-  "description": "A fixture-backed template for Novel-Electron scraper or theme extensions.",
+  "description": "A fixture-backed template for e-novels scraper or theme extensions.",
   "starter": {
     "kind": "scraper"
   },
@@ -13,12 +13,27 @@
   "main": "./dist/index.js",
   "browser": "./dist/browser.js",
   "icon": "./public/icon.png",
-  "activationEvents": ["always"],
-  "categories": ["Scrapers"],
-  "keywords": ["novel-electron", "scraper", "theme", "template", "typescript"],
-  "permissions": ["network", "reader"],
+  "activationEvents": [
+    "always"
+  ],
+  "categories": [
+    "Scrapers"
+  ],
+  "keywords": [
+    "e-novels",
+    "scraper",
+    "theme",
+    "template",
+    "typescript"
+  ],
+  "permissions": [
+    "network",
+    "reader"
+  ],
   "network": {
-    "allowedHosts": ["example.com"]
+    "allowedHosts": [
+      "example.com"
+    ]
   },
   "contributes": {
     "scraper": {
@@ -29,7 +44,11 @@
         "name": "Example Site",
         "baseUrl": "https://example.com"
       },
-      "capabilities": ["search", "getBookDetail", "getChapter"],
+      "capabilities": [
+        "search",
+        "getBookDetail",
+        "getChapter"
+      ],
       "search": {
         "pageSize": 20,
         "fields": [
