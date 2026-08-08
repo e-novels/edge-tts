@@ -12,10 +12,10 @@ The template demonstrates three different modes of execution for TTS extensions:
 To initialize a copy of this starter for your TTS extension, run:
 
 ```bash
-npm run init -- --name my-tts --display-name "My TTS Service" --publisher your-name --kind tts --mode process
+npm run init -- --name my-tts --display-name "My TTS Service" --publisher your-name --kind tts --tts-mode process
 ```
 
-The options for `--mode` are `process`, `cloud`, or `wasm`.
+The options for `--tts-mode` are `process`, `cloud`, or `wasm`.
 
 ## Required Manifest
 

@@ -145,4 +145,5 @@ interface ExtensionSettingsAction {
   fields?: string[]
   style?: 'primary' | 'danger' | 'default'
   confirm?: string
+  longRunning?: boolean
 }

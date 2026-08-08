@@ -200,14 +200,99 @@ function initialize(root, rawOptions) {
     manifest.contributes = {}
   }
 
-  cleanUnusedKinds(root, options.kind)
+  cleanUnusedKinds(root, options.kind, options.ttsMode)
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
   return manifest
 }
 
 const ALL_KINDS = ['scraper', 'theme', 'tts', 'translator']
+const ALL_TTS_MODES = ['process', 'cloud', 'wasm']
 
-function cleanUnusedKinds(root, activeKind) {
+function cleanUnusedTtsModes(root, activeTtsMode) {
+  const ttsDir = path.join(root, 'src', 'tts')
+  if (!fs.existsSync(ttsDir)) return
+
+  for (const mode of ALL_TTS_MODES) {
+    if (mode === activeTtsMode) continue
+
+    const modeDir = path.join(ttsDir, `${mode}Mode`)
+    if (fs.existsSync(modeDir)) {
+      fs.rmSync(modeDir, { recursive: true, force: true })
+    }
+  }
+
+  if (activeTtsMode !== 'process') {
+    const pythonDir = path.join(ttsDir, 'python')
+    if (fs.existsSync(pythonDir)) {
+      fs.rmSync(pythonDir, { recursive: true, force: true })
+    }
+  }
+
+  updateTtsIndexTs(root, activeTtsMode)
+}
+
+function updateTtsIndexTs(root, ttsMode) {
+  const indexPath = path.join(root, 'src', 'tts', 'index.ts')
+  if (!fs.existsSync(path.dirname(indexPath))) return
+  let content = ''
+  if (ttsMode === 'process') {
+    content = `import { ProcessBridge } from './processMode/bridge'
+
+export async function activateTTS(novel: NovelExtensionApi): Promise<void> {
+  if (!novel.tts) return
+
+  const bridge = new ProcessBridge(novel)
+  await novel.tts.register({
+    getVoices: async () => {
+      if (!novel.process) {
+        throw new Error('novel.process is only available on Electron Desktop.')
+      }
+      await bridge.startProcess('bin/server')
+      return await bridge.sendCommand('getVoices', {})
+    },
+    speak: async (params: ExtensionTTSSpeakRequest) => {
+      return await bridge.sendCommand('speak', params)
+    },
+    stop: async () => {
+      return await bridge.sendCommand('stop', {})
+    }
+  })
+}
+`
+  } else if (ttsMode === 'cloud') {
+    content = `import { CloudBridge } from './cloudMode/bridge'
+
+export async function activateTTS(novel: NovelExtensionApi): Promise<void> {
+  if (!novel.tts) return
+
+  const bridge = new CloudBridge(novel)
+  await novel.tts.register({
+    getVoices: async () => bridge.getVoices(),
+    speak: async (params: ExtensionTTSSpeakRequest) => bridge.speak(params),
+    stop: async () => bridge.stop()
+  })
+}
+`
+  } else if (ttsMode === 'wasm') {
+    content = `import { WasmBridge } from './wasmMode/bridge'
+
+export async function activateTTS(novel: NovelExtensionApi): Promise<void> {
+  if (!novel.tts) return
+
+  const bridge = new WasmBridge(novel)
+  await novel.tts.register({
+    getVoices: async () => bridge.getVoices(),
+    speak: async (params: ExtensionTTSSpeakRequest) => bridge.speak(params),
+    stop: async () => bridge.stop()
+  })
+}
+`
+  }
+
+  fs.writeFileSync(indexPath, content, 'utf8')
+}
+
+function cleanUnusedKinds(root, activeKind, activeTtsMode) {
   for (const kind of ALL_KINDS) {
     if (kind === activeKind) continue
 
@@ -225,6 +310,10 @@ function cleanUnusedKinds(root, activeKind) {
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true, force: true })
     }
+  }
+
+  if (activeKind === 'tts') {
+    cleanUnusedTtsModes(root, activeTtsMode || 'process')
   }
 
   updateIndexTs(root, activeKind)
