@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
+const runTranslatorContractTests = require('./contract.test')
 
 module.exports = async function runTranslatorTests(root, manifest) {
   assert.equal(manifest.icon, './public/icon.png')
@@ -46,6 +47,7 @@ module.exports = async function runTranslatorTests(root, manifest) {
     assert.equal(translateRes.translatedParagraphs.length, 2)
     assert.equal(translateRes.translatedParagraphs[0], '[AI Translated] Hello world')
 
+    await runTranslatorContractTests(root, manifest, registeredTranslator)
     await extension.deactivate()
   }
 

@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
+const runScraperContractTests = require('./contract.test')
 
 function readJsonFixture(root, filename) {
   const fixturePath = path.join(root, 'test', 'scraper', 'fixtures', filename)
@@ -108,6 +109,8 @@ module.exports = async function runScraperTests(root, manifest) {
       () => handlers.search({ filters: { query: 'rate-limited' }, page: 1, pageSize: 20 }),
       /HTTP 429/
     )
+
+    await runScraperContractTests(root, manifest, handlers)
     await extension.deactivate()
   }
 

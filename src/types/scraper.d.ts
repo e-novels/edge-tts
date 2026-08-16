@@ -6,6 +6,7 @@ type ScraperCapability =
   | 'suggest'
   | 'getComments'
   | 'getReviews'
+  | 'download'
 
 type ScraperFilterValue = string | number | boolean | string[] | null
 
@@ -36,6 +37,25 @@ interface ScraperBookDetailRequest {
 interface ScraperChapterRequest {
   chapterRef: string
   bookRef?: string
+}
+
+interface ScraperDownloadRequest {
+  book_id: number | string
+  volume_id?: number | string
+}
+
+interface ScraperVolumeWithContent {
+  volume_id: number | string
+  volume_name: string
+  volume_number: number
+  created_at?: string
+  updated_at?: string
+  chapters: ScraperChapter[]
+}
+
+type ScraperBookDetailWithContent = Omit<ScraperBookDetail, 'volumes' | 'book_id'> & {
+  book_id: number | string
+  volumes: ScraperVolumeWithContent[]
 }
 
 interface ScraperFilterOptionsRequest {
@@ -76,6 +96,9 @@ interface ScraperHandlers {
   suggest?: (request: ScraperFilterOptionsRequest) => ExtensionMaybePromise<string[]>
   getComments?: (request: ScraperBookDetailRequest) => ExtensionMaybePromise<ScraperCommentsPage>
   getReviews?: (request: ScraperBookDetailRequest) => ExtensionMaybePromise<ScraperReview[]>
+  download?: (
+    request: ScraperDownloadRequest
+  ) => ExtensionMaybePromise<ScraperBookDetailWithContent>
 }
 
 interface ExtensionScraperApi {

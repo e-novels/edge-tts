@@ -155,15 +155,22 @@ For a declarative theme asset, add `contributes.themes` only after selecting the
   
 Scraper capability ↔ handler ↔ request:  
   
-| Capability | Handler | Request |  
-| --- | --- | --- |  
-| `search` | `search` | `{ filters, page, pageSize }` |  
-| `getBookDetail` | `getBookDetail` | `{ bookRef }` |  
-| `getChapter` | `getChapter` | `{ chapterRef, bookRef? }` |  
-  
+| Capability | Handler | Request | Description |
+| --- | --- | --- | --- |
+| `search` | `search` | `{ filters, page, pageSize }` | Searches books with filters and pagination. |
+| `getBookDetail` | `getBookDetail` | `{ bookRef }` | Returns detailed book metadata and volume/chapter outline. |
+| `getChapter` | `getChapter` | `{ chapterRef, bookRef? }` | Returns a single chapter's content paragraphs. |
+| `download` | `download` | `{ book_id, volume_id? }` | Batch downloads book or volume with chapter contents. |
+
+### Invocation Timeouts & Long-running Operations
+
+- **Standard Scraper Methods** (`search`, `getBookDetail`, `getChapter`, `getComments`, `getReviews`): Maximum **45 seconds** timeout.
+- **Batch Download Method** (`download`): Maximum **10 minutes (600,000 ms)** timeout to allow batch crawling of multiple chapters.
+- **Best Practice for `download`**: When downloading multiple chapters sequentially, throttle requests politely (e.g. `150ms` - `300ms` delay between requests) to prevent HTTP 429 rate-limiting from target servers while ensuring the entire download completes within the 10-minute ceiling.
+
 ## Required Response Shapes (scraper)  
   
-Entity IDs must be positive safe integers. Image URLs must be absolute HTTP(S) URLs or an empty string. Dates must be ISO-compatible.  
+Entity IDs must be positive safe integers (or valid string references mapped via the gateway). Image URLs must be absolute HTTP(S) URLs or an empty string. Dates must be ISO-compatible.  
   
 `search` returns a response with `items` and `pagination`:  
   
@@ -238,7 +245,27 @@ Entity IDs must be positive safe integers. Image URLs must be absolute HTTP(S) U
   updated_at: '2026-01-01T00:00:00.000Z'  
 }  
 ```  
-  
+
+`download` returns the book structure containing volumes and chapters with their full text `content`:
+
+```ts
+{
+  book_id: 101,
+  book_name: 'Example Book',
+  volumes: [{
+    volume_id: 201,
+    volume_name: 'Volume 1',
+    volume_number: 1,
+    chapters: [{
+      chapter_id: 301,
+      chapter_name: 'Chapter 1',
+      chapter_number: 1,
+      content: ['First paragraph.', 'Second paragraph.']
+    }]
+  }]
+}
+```
+
 The extension-local definitions in `src/types/` provide autocomplete for the public bridge and these template data shapes.  
   
 ## Commands  

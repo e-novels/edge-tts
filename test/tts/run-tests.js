@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
+const runTTSContractTests = require('./contract.test')
 
 module.exports = async function runTtsTests(root, manifest) {
   assert.equal(manifest.icon, './public/icon.png')
@@ -112,6 +113,7 @@ module.exports = async function runTtsTests(root, manifest) {
       assert.ok(stopRes !== undefined)
     }
 
+    await runTTSContractTests(root, manifest, registeredTTS)
     await extension.deactivate()
   }
 
