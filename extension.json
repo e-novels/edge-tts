@@ -12,7 +12,7 @@
   },
   "main": "./dist/index.js",
   "browser": "./dist/browser.js",
-  "icon": "./public/icon.png",
+  "icon": "./public/icon.jpeg",
   "activationEvents": [
     "always"
   ],

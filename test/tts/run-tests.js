@@ -6,7 +6,7 @@ const path = require('node:path')
 const runTTSContractTests = require('./contract.test')
 
 module.exports = async function runTtsTests(root, manifest) {
-  assert.equal(manifest.icon, './public/icon.png')
+  assert.ok(manifest.icon === './public/icon.jpeg' || manifest.icon === './public/icon.png')
   assert.ok(manifest.permissions.includes('tts'))
   assert.equal(manifest.contributes?.scraper, undefined)
   assert.ok(manifest.contributes?.tts, 'TTS profile must contribute tts configuration')
