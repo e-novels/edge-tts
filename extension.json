@@ -1,11 +1,11 @@
 {
-  "name": "example-extension",
-  "displayName": "Example Extension",
-  "publisher": "your-publisher",
+  "name": "edge-tts",
+  "displayName": "Microsoft Edge TTS",
+  "publisher": "e-novels",
   "version": "0.1.0",
-  "description": "A fixture-backed template for e-novels scraper or theme extensions.",
+  "description": "TTS Engine extension for e-novels by e-novels.",
   "starter": {
-    "kind": "scraper"
+    "kind": "tts"
   },
   "engines": {
     "enovel": ">=1.0.0"
@@ -17,48 +17,28 @@
     "always"
   ],
   "categories": [
-    "Scrapers"
+    "TTS"
   ],
   "keywords": [
     "e-novels",
-    "scraper",
-    "theme",
-    "template",
+    "tts",
     "typescript"
   ],
   "permissions": [
+    "tts",
     "network",
-    "reader"
+    "storage"
   ],
-  "network": {
-    "allowedHosts": [
-      "example.com"
-    ]
-  },
   "contributes": {
-    "scraper": {
-      "name": "Example Site",
-      "description": "Replace the placeholder routes and mappers with a source you are allowed to access.",
-      "version": 2,
-      "site": {
-        "name": "Example Site",
-        "baseUrl": "https://example.com"
-      },
+    "tts": {
+      "name": "Microsoft Edge TTS",
+      "description": "TTS Engine extension for e-novels by e-novels.",
+      "mode": "cloud",
       "capabilities": [
-        "search",
-        "getBookDetail",
-        "getChapter"
-      ],
-      "search": {
-        "pageSize": 20,
-        "fields": [
-          {
-            "id": "query",
-            "type": "text",
-            "label": "Search"
-          }
-        ]
-      }
+        "getVoices",
+        "speak",
+        "stop"
+      ]
     }
   }
 }
