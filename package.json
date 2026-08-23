@@ -1,8 +1,8 @@
 {
-  "name": "@enovel/starter-extension",
-  "version": "0.1.0",
+  "name": "@enovel/edge-tts-extension",
+  "version": "1.0.0",
   "private": true,
-  "description": "TypeScript starter for e-novels extensions",
+  "description": "Microsoft Edge TTS Extension for E-Novel",
   "engines": {
     "node": ">=20.19.0"
   },
@@ -13,11 +13,11 @@
     "build": "npm run typecheck && node build.js",
     "dev": "node build.js --watch",
     "watch": "node build.js --watch",
-    "test:init": "node test/init-run-tests.js",
-    "test": "npm run build && node test/run-tests.js && npm run test:init",
+    "test": "npm run build && node test/run-tests.js",
     "package": "npm run build && node package.js",
     "test:package": "npm run package && node test/verify-package.js"
   },
+
   "devDependencies": {
     "@types/node": "^22.19.1",
     "adm-zip": "^0.6.0",

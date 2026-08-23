@@ -1,5 +1,6 @@
 import { initExtensionApi, logger } from './utilities'
 import { activateTTS } from './tts'
+import { edgeTTSClient } from './tts/core/client'
 
 export * from './utilities'
 
@@ -10,5 +11,6 @@ export async function activate(novel: NovelExtensionApi): Promise<void> {
 }
 
 export async function deactivate(): Promise<void> {
-  return
+  await edgeTTSClient.stop()
 }
+

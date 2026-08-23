@@ -1,13 +1,32 @@
 import { getNovelApi } from './context'
 
 export const logger = {
-  info(...values: ExtensionLogValue[]): Promise<void> {
-    return getNovelApi().logger.info(...values)
+  async info(...values: ExtensionLogValue[]): Promise<void> {
+    try {
+      console.log(...values)
+      const api = getNovelApi()
+      if (api?.logger?.info) {
+        await api.logger.info(...values)
+      }
+    } catch {}
   },
-  warn(...values: ExtensionLogValue[]): Promise<void> {
-    return getNovelApi().logger.warn(...values)
+  async warn(...values: ExtensionLogValue[]): Promise<void> {
+    try {
+      console.warn(...values)
+      const api = getNovelApi()
+      if (api?.logger?.warn) {
+        await api.logger.warn(...values)
+      }
+    } catch {}
   },
-  error(...values: ExtensionLogValue[]): Promise<void> {
-    return getNovelApi().logger.error(...values)
+  async error(...values: ExtensionLogValue[]): Promise<void> {
+    try {
+      console.error(...values)
+      const api = getNovelApi()
+      if (api?.logger?.error) {
+        await api.logger.error(...values)
+      }
+    } catch {}
   }
 }
+

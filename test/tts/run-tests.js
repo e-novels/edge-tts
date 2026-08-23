@@ -20,6 +20,7 @@ module.exports = async function runTtsTests(root, manifest) {
     const extension = require(entryPath)
     const logs = []
     let registeredTTS = null
+    let registeredSettings = null
     let spawnedProcess = null
     let lineListener = null
 
@@ -33,7 +34,11 @@ module.exports = async function runTtsTests(root, manifest) {
         error: async () => undefined
       },
       scraper: { register: async () => { throw new Error('TTS profile must not register a scraper.') } },
-      settings: { register: async () => undefined },
+      settings: {
+        register: async handlers => {
+          registeredSettings = handlers
+        }
+      },
       tts: {
         register: async handlers => {
           registeredTTS = handlers
@@ -111,6 +116,17 @@ module.exports = async function runTtsTests(root, manifest) {
     if (typeof registeredTTS.stop === 'function') {
       const stopRes = await registeredTTS.stop()
       assert.ok(stopRes !== undefined)
+    }
+
+    if (manifest.contributes?.settings) {
+      assert.ok(registeredSettings !== null, 'Settings handlers should be registered')
+      assert.equal(typeof registeredSettings.previewVoice, 'function', 'previewVoice handler should be registered')
+      const previewRes = await registeredSettings.previewVoice({
+        voice: 'vi-VN-HoaiMyNeural',
+        previewText: 'Kiểm tra giọng đọc'
+      })
+      assert.ok(previewRes && previewRes.success, 'previewVoice action should succeed')
+      assert.ok(typeof previewRes.audio === 'string', 'previewVoice action should return audio payload')
     }
 
     await runTTSContractTests(root, manifest, registeredTTS)

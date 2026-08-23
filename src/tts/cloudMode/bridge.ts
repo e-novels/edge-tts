@@ -1,29 +1,44 @@
+import { edgeTTSClient } from '../core/client'
+import { logger } from '../../utilities'
+
 export class CloudBridge {
-  constructor(private novel: NovelExtensionApi) { }
+  constructor(private novel: NovelExtensionApi) {}
 
   async getVoices(): Promise<ExtensionTTSGetVoicesResponse> {
-    return {
-      voices: [
-        { id: 'vbee-hn-female', name: 'Vbee Hanoi Female', lang: 'vi-VN' },
-        { id: 'vbee-sg-male', name: 'Vbee Saigon Male', lang: 'vi-VN' }
-      ]
-    }
+    return await edgeTTSClient.getVoices(this.novel.network, this.novel.storage)
   }
 
   async speak(request: ExtensionTTSSpeakRequest): Promise<ExtensionTTSSpeakResponse> {
-    // Cloud API extensions execute novel.network fetch request
-    // Example: Vbee, ElevenLabs, Google Cloud TTS
-    const mockAudioHeader =
-      'RIFF\x24\x00\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00' +
-      '\x44\xac\x00\x00\x88\x58\x01\x00\x02\x00\x10\x00data\x00\x00\x00\x00'
-
-    return {
-      audio: btoa(mockAudioHeader),
-      mimeType: 'audio/wav'
+    if (!request.text || !request.text.trim()) {
+      return {
+        audio: '',
+        mimeType: 'audio/mp3'
+      }
     }
+
+    let defaultVoiceId = request.voiceId
+    if (!defaultVoiceId && this.novel.storage) {
+      try {
+        const savedVoice = await this.novel.storage.get<string>('settings.voice')
+        if (savedVoice && typeof savedVoice === 'string') {
+          defaultVoiceId = savedVoice
+        }
+      } catch {}
+    }
+
+    return await edgeTTSClient.synthesize(
+      request.text,
+      defaultVoiceId,
+      request.config,
+      undefined,
+      this.novel.network
+    )
   }
 
   async stop(): Promise<ExtensionTTSStopResponse> {
-    return { success: true }
+    await logger.info('[EdgeTTS] Nhận lệnh dừng phát âm thanh.')
+    return await edgeTTSClient.stop()
   }
 }
+
+

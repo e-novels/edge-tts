@@ -2,8 +2,8 @@
   "name": "edge-tts",
   "displayName": "Microsoft Edge TTS",
   "publisher": "e-novels",
-  "version": "0.1.0",
-  "description": "TTS Engine extension for e-novels by e-novels.",
+  "version": "1.0.0",
+  "description": "Giọng đọc trực tuyến Microsoft Edge Neural Voices chất lượng cao cho E-Novel.",
   "starter": {
     "kind": "tts"
   },
@@ -22,6 +22,10 @@
   "keywords": [
     "e-novels",
     "tts",
+    "edge-tts",
+    "microsoft",
+    "speech",
+    "neural",
     "typescript"
   ],
   "permissions": [
@@ -29,16 +33,65 @@
     "network",
     "storage"
   ],
+  "network": {
+    "allowedHosts": [
+      "speech.platform.bing.com",
+      "api.msedgeservices.com",
+      "raw.githubusercontent.com"
+    ]
+  },
   "contributes": {
     "tts": {
       "name": "Microsoft Edge TTS",
-      "description": "TTS Engine extension for e-novels by e-novels.",
+      "description": "Giọng đọc trực tuyến Microsoft Edge Neural Voices chất lượng cao cho E-Novel.",
       "mode": "cloud",
       "capabilities": [
         "getVoices",
         "speak",
         "stop"
       ]
+    },
+    "settings": {
+      "fields": [
+        {
+          "id": "voice",
+          "label": "Giọng đọc (Voice)",
+          "type": "select",
+          "description": "Chọn giọng đọc trực tuyến Microsoft Edge Neural mặc định.",
+          "defaultValue": "vi-VN-HoaiMyNeural",
+          "options": [
+            { "label": "Hoài My (Nữ) - Tiếng Việt", "value": "vi-VN-HoaiMyNeural" },
+            { "label": "Nam Minh (Nam) - Tiếng Việt", "value": "vi-VN-NamMinhNeural" },
+            { "label": "Jenny (Female) - English (US)", "value": "en-US-JennyNeural" },
+            { "label": "Guy (Male) - English (US)", "value": "en-US-GuyNeural" },
+            { "label": "Aria (Female) - English (US)", "value": "en-US-AriaNeural" },
+            { "label": "Nanami (Female) - Japanese", "value": "ja-JP-NanamiNeural" },
+            { "label": "Keita (Male) - Japanese", "value": "ja-JP-KeitaNeural" },
+            { "label": "Xiaoxiao (Female) - Chinese", "value": "zh-CN-XiaoxiaoNeural" },
+            { "label": "Yunxi (Male) - Chinese", "value": "zh-CN-YunxiNeural" },
+            { "label": "Sun-Hi (Female) - Korean", "value": "ko-KR-SunHiNeural" },
+            { "label": "InJoon (Male) - Korean", "value": "ko-KR-InJoonNeural" },
+            { "label": "Denise (Female) - French", "value": "fr-FR-DeniseNeural" },
+            { "label": "Katja (Female) - German", "value": "de-DE-KatjaNeural" }
+          ]
+        },
+        {
+          "id": "previewText",
+          "label": "Văn bản nghe thử",
+          "type": "textarea",
+          "description": "Nhập văn bản mẫu để kiểm tra giọng đọc.",
+          "defaultValue": "Xin chào! Đây là giọng đọc thử nghiệm của Microsoft Edge TTS trên E-Novel."
+        }
+      ],
+      "actions": [
+        {
+          "id": "previewVoice",
+          "label": "🔊 Nghe thử giọng đọc",
+          "style": "primary",
+          "fields": ["voice", "previewText"]
+        }
+      ]
     }
   }
 }
+
